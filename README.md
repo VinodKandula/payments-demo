@@ -14,6 +14,11 @@ components (plus the Hello World demo):
 * _fast-payer_: takes the processed payments from upstream and logs
   them to stdout. Runs on port 8082.
 
+* _common_: a shared library for all the apps that autoconfigures some
+  useful things (e.g. metric exports).
+
+* _zipkin_: a Zipkin Stream server for aggregating trace data.
+
 * _demo_: a really basic REST controller that you can ping and get a
   "Hello World" message.
 
@@ -38,3 +43,27 @@ result will be RabbitMQ running in a VM or on an external platform,
 and the `spring.rabbitmq.host` will need to be set, or else you could
 set up an ssh tunnel for ports 5672 and 15672 to that host. On Cloud
 Foundry, just create a service of type RabbitMQ and bind to it.
+
+## Metrics
+
+The "ingester" app has a really basic UI that scrapes send counts from
+the `/metrics` endpoints of all the other apps. You can see messages
+flowing that way, and also check there are no errors. When the
+ingester processes a file you should see a bunch of messages coming
+out of its "output" channel and flowing down through the "processor"
+and the "fast-payments" service.
+
+All the apps try to send metrics to
+[Librato](https://www.librato.com). To make that successful you need
+to regfister with the service and get an API token, then configure a
+`librato.email` and `librato.token`.
+
+## Tracing
+
+All the apps send trace data to Rabbit and you can run the Zipkin
+Stream server to aggregate them (a Spring Boot app with
+`@EnableZipkinStreamServer`), and a UI to visualize them
+(e.g. download `zipkin-web` from Maven central and run the jar
+file). As things stand, each file that is processed generates a single
+span (because it is a single message). This might be too granular for
+real world usage, so we'd have to look at how to break it up.
