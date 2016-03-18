@@ -14,16 +14,19 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Processor;
 import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.Splitter;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
 
 @SpringBootApplication
 @EnableBinding(Processor.class)
 @MessageEndpoint
 public class IngesterProcessor {
-	
+
 	private static Logger log = LoggerFactory.getLogger(IngesterProcessor.class);
 
 	@Splitter(inputChannel = Processor.INPUT, outputChannel = Processor.OUTPUT)
-	public List<Mt103Payment> split(byte[] file) throws Exception {
+	public List<Mt103Payment> split(@Payload byte[] file,
+			@Header("file_name") String name) throws Exception {
 		List<Mt103Payment> payments = new ArrayList<>();
 		try (BufferedReader reader = new BufferedReader(
 				new InputStreamReader(new ByteArrayInputStream(file)))) {

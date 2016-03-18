@@ -58,12 +58,3 @@ All the apps try to send metrics to
 to regfister with the service and get an API token, then configure a
 `librato.email` and `librato.token`.
 
-## Tracing
-
-All the apps send trace data to Rabbit and you can run the Zipkin
-Stream server to aggregate them (a Spring Boot app with
-`@EnableZipkinStreamServer`), and a UI to visualize them
-(e.g. download `zipkin-web` from Maven central and run the jar
-file). As things stand, each file that is processed generates a single
-span (because it is a single message). This might be too granular for
-real world usage, so we'd have to look at how to break it up.

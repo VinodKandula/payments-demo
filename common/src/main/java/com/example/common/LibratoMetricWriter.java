@@ -74,6 +74,9 @@ public class LibratoMetricWriter implements MetricWriter, Flushable {
 			if (!result.success()) {
 				log.warn("Could not post {} (out of {}) batches to librato",
 						result.getFailedPosts().size(), result.getPosts().size());
+				if (!result.getFailedPosts().isEmpty()) {
+					log.debug("Failed batch: {}", result.getFailedPosts().get(0));
+				}
 			}
 			if (!result.getPosts().isEmpty()) {
 				this.batch = new LibratoBatch(librato.getBatchSize(), Sanitizer.NO_OP,

@@ -2,6 +2,7 @@
 *.iml
 classes
 target
+.factorypath
 .metadata
 .recommenders/
 .classpath

@@ -17,7 +17,7 @@ import org.springframework.integration.annotation.Transformer;
 public class ProcessorApplication {
 	
 	private static Logger log = LoggerFactory.getLogger(ProcessorApplication.class);
-
+	
 	@Transformer(inputChannel=Processor.INPUT, outputChannel="payments")
 	public Payment convert(String inbound) {
 		return new Payment(inbound);

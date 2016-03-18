@@ -26,22 +26,23 @@ public class IngesterApplication {
 
 	@Autowired
 	private SharedChannelRegistry registry;
-	
+
 	// TODO: use custom namespace
 	private String namespace = IngesterProcessor.class.getName() + "_1";
 
-	@RequestMapping(value="/bytes", method=RequestMethod.POST)
+	@RequestMapping(value = "/bytes", method = RequestMethod.POST)
 	@ResponseBody
-	public Map<String,Object> upload(@RequestBody byte[] file) {
+	public Map<String, Object> upload(@RequestBody byte[] file) {
 		MessageChannel channel = registry.get(namespace + ".input");
 		channel.send(MessageBuilder.withPayload(file).build());
 		return Collections.singletonMap("status", "OK");
 	}
 
-	@RequestMapping(value="/file", method=RequestMethod.POST)
+	@RequestMapping(value = "/file", method = RequestMethod.POST)
 	public String file(@RequestParam MultipartFile file) throws Exception {
 		MessageChannel channel = registry.get(namespace + ".input");
-		channel.send(MessageBuilder.withPayload(file.getBytes()).build());
+		channel.send(MessageBuilder.withPayload(file.getBytes())
+				.setHeader("file_name", file.getName()).build());
 		return "redirect:/";
 	}
 
