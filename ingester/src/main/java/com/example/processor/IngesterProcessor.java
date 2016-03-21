@@ -1,4 +1,4 @@
-package com.example.ingester;
+package com.example.processor;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
