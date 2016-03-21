@@ -1,2 +1,3 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.example.common.LibratoAutoConfiguration
+  com.example.common.LibratoAutoConfiguration,\
+  com.example.common.MoneyJacksonAutoConfiguration

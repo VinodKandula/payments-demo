@@ -17,6 +17,8 @@ components (plus the Hello World demo):
 * _common_: a shared library for all the apps that autoconfigures some
   useful things (e.g. metric exports).
 
+* _journal_: a shared library for the apps that need a journal (ingress and egress)
+
 * _demo_: a really basic REST controller that you can ping and get a
   "Hello World" message.
 

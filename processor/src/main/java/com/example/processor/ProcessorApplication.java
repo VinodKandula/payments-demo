@@ -1,5 +1,6 @@
 package com.example.processor;
 
+import org.joda.money.Money;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
@@ -15,23 +16,24 @@ import org.springframework.integration.annotation.Transformer;
 @EnableBinding(Processor.class)
 @MessageEndpoint
 public class ProcessorApplication {
-	
+
 	private static Logger log = LoggerFactory.getLogger(ProcessorApplication.class);
-	
-	@Transformer(inputChannel=Processor.INPUT, outputChannel="payments")
-	public Payment convert(String inbound) {
-		return new Payment(inbound);
+
+	@Transformer(inputChannel = Processor.INPUT, outputChannel = "payments")
+	public Payment enhance(Payment inbound) {
+		// TODO: do stuff to the payment
+		return inbound;
 	}
 
-	@Router(inputChannel="payments")
+	@Router(inputChannel = "payments")
 	public String route(Payment inbound) {
 		return "fp";
 	}
 
-	@ServiceActivator(inputChannel="fp", outputChannel=Processor.OUTPUT)
+	@ServiceActivator(inputChannel = "fp", outputChannel = Processor.OUTPUT)
 	public FastPayment pay(Payment inbound) {
 		log.info("Fast payment: " + inbound);
-		return new FastPayment(inbound.getMsg());
+		return new FastPayment(inbound.getMsg(), inbound.getId(), inbound.getAmount());
 	}
 
 	public static void main(String[] args) {
@@ -42,13 +44,17 @@ public class ProcessorApplication {
 class Payment {
 
 	private String msg;
+	private Money amount;
+	private String id;
 
 	@SuppressWarnings("unused")
 	private Payment() {
 	}
 
-	public Payment(String msg) {
+	public Payment(String msg, String id, Money amount) {
 		this.msg = msg;
+		this.id = id;
+		this.amount = amount;
 	}
 
 	public String getMsg() {
@@ -59,9 +65,18 @@ class Payment {
 		this.msg = msg;
 	}
 
+	public Money getAmount() {
+		return amount;
+	}
+
+	public String getId() {
+		return id;
+	}
+
 	@Override
 	public String toString() {
-		return "Payment [msg=" + msg.substring(0, 40).replaceAll("\n", " ") + "]";
+		return "Payment [id=" + id + ", amount=" + amount + ", msg="
+				+ msg.substring(0, 40).replaceAll("\n", " ") + "]";
 	}
 
 }
@@ -69,13 +84,17 @@ class Payment {
 class FastPayment {
 
 	private String msg;
+	private Money amount;
+	private String id;
 
 	@SuppressWarnings("unused")
 	private FastPayment() {
 	}
 
-	public FastPayment(String msg) {
+	public FastPayment(String msg, String id, Money amount) {
 		this.msg = msg;
+		this.id = id;
+		this.amount = amount;
 	}
 
 	public String getMsg() {
@@ -88,7 +107,16 @@ class FastPayment {
 
 	@Override
 	public String toString() {
-		return "FastPayment [msg=" + msg.substring(0, 40).replaceAll("\n", " ") + "]";
+		return "FastPayment [id=" + id + ", amount=" + amount + ", msg="
+				+ msg.substring(0, 40).replaceAll("\n", " ") + "]";
+	}
+
+	public Money getAmount() {
+		return amount;
+	}
+
+	public String getId() {
+		return id;
 	}
 
 }
