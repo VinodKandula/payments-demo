@@ -99,7 +99,8 @@ class FastPayment {
 	@Override
 	public String toString() {
 		return "FastPayment [id=" + id + ", amount=" + amount + ", msg="
-				+ msg.substring(0, 40).replaceAll("\n", " ") + "]";
+				+ msg.substring(0, Math.min(40, msg.length())).replaceAll("\n", " ")
+				+ "]";
 	}
 
 }

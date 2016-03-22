@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -25,6 +24,7 @@ import org.springframework.integration.annotation.MessageEndpoint;
 import org.springframework.integration.annotation.Splitter;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.security.crypto.codec.Hex;
 
 import com.example.journal.Journal;
 import com.example.journal.JournalEntry;
@@ -104,8 +104,8 @@ class Mt103Payment {
 		this.msg = msg;
 		amount = Money.of(CurrencyUnit.GBP, randomAmount());
 		try {
-			id = Base64.getEncoder().encodeToString(
-					MessageDigest.getInstance("md5").digest(msg.getBytes("UTF-8")));
+			id = new String(Hex.encode(
+					MessageDigest.getInstance("md5").digest(msg.getBytes("UTF-8"))));
 		}
 		catch (Exception e) {
 			throw new IllegalStateException("Cannot encode String", e);
@@ -125,7 +125,8 @@ class Mt103Payment {
 
 	@Override
 	public String toString() {
-		return "Mt103Payment [msg=" + msg.substring(0, 40).replaceAll("\n", " ")
+		return "Mt103Payment [msg="
+				+ msg.substring(0, Math.min(40, msg.length())).replaceAll("\n", " ")
 				+ ", amount=" + getAmount() + "]";
 	}
 
