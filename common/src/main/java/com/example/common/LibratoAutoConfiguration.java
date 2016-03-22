@@ -19,6 +19,7 @@ package com.example.common;
 import org.springframework.boot.actuate.autoconfigure.ExportMetricReader;
 import org.springframework.boot.actuate.autoconfigure.ExportMetricWriter;
 import org.springframework.boot.actuate.metrics.integration.SpringIntegrationMetricReader;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +44,7 @@ public class LibratoAutoConfiguration {
 	
 	@Bean
 	@ExportMetricReader
+	@ConditionalOnBean(IntegrationMBeanExporter.class)
 	public SpringIntegrationMetricReader springIntegrationMetricReader(
 			IntegrationMBeanExporter exporter) {
 		return new SpringIntegrationMetricReader(exporter);
