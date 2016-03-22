@@ -1,5 +1,7 @@
 package com.example.payer;
 
+import javax.annotation.PostConstruct;
+
 import org.joda.money.Money;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,9 +14,11 @@ import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.example.journal.Journal;
 import com.example.journal.JournalEntry;
+import com.example.journal.ledger.OnceOnlyJournal;
 import com.example.journal.teller.TellerConfiguration;
 
 @SpringBootApplication
@@ -30,6 +34,11 @@ public class FastPayerApplication {
 	@Value("${ingester.account:fp}")
 	private String account;
 
+	@PostConstruct
+	public void init() {
+		journal = new OnceOnlyJournal(journal);
+	}
+
 	@Bean
 	public InitializingBean initializer(Sink sink) {
 		return () -> {
@@ -40,10 +49,14 @@ public class FastPayerApplication {
 		};
 	}
 
+	@Transactional
 	public void pay(FastPayment payment) {
-		journal.debit(new JournalEntry(account, "fast-payer", payment.getId(),
-				payment.getAmount()));
-		log.info("Paid: " + payment);
+		if (journal.debit(new JournalEntry(account, "fast-payer", payment.getId(),
+				payment.getAmount()))) {
+			// If this fails then the journal entry should roll back as well, *and* the
+			// duplication cache entry.
+			log.info("Paid: " + payment);
+		}
 	}
 
 	public static void main(String[] args) {

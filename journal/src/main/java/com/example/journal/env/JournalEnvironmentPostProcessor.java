@@ -16,19 +16,22 @@
 
 package com.example.journal.env;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Properties;
 
+import org.springframework.beans.factory.config.YamlPropertiesFactoryBean;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.env.EnvironmentPostProcessor;
 import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import com.example.journal.JournalEntry;
 import com.example.journal.ledger.JournalSink;
-import com.example.journal.teller.JournalSource;
 
 /**
  * @author Dave Syer
@@ -41,19 +44,8 @@ public class JournalEnvironmentPostProcessor implements EnvironmentPostProcessor
 	@Override
 	public void postProcessEnvironment(ConfigurableEnvironment environment,
 			SpringApplication application) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		// TODO: Spring Cloud Stream is changing to *.bindings.*.producer.*
-		map.put("spring.cloud.stream.bindings." + JournalSource.OUTPUT
-				+ ".required-groups",
-				environment.getProperty("journal.stream.group", "default"));
-		map.put("spring.cloud.stream.bindings." + JournalSink.INPUT + ".group",
-				environment.getProperty("journal.stream.group", "default"));
-		map.put("spring.cloud.stream.bindings." + JournalSource.OUTPUT + ".destination",
-				environment.getProperty("journal.destination", "journal"));
-		map.put("spring.cloud.stream.bindings." + JournalSink.INPUT + ".destination",
-				environment.getProperty("journal.destination", "journal"));
-		map.put("spring.cloud.stream.bindings." + JournalSource.OUTPUT + ".content-type",
-				environment.getProperty("journal.content-type", "application/json"));
+		Map<String, Object> map = new LinkedHashMap<>();
+		contributeDefaults(map, new ClassPathResource("journal.yml"));
 		map.put("spring.cloud.stream.bindings." + JournalSink.INPUT + ".content-type",
 				"application/x-java-object;type=" + JournalEntry.class.getName());
 		addOrReplace(environment.getPropertySources(), map);
@@ -78,6 +70,19 @@ public class JournalEnvironmentPostProcessor implements EnvironmentPostProcessor
 		}
 		if (!propertySources.contains(PROPERTY_SOURCE_NAME)) {
 			propertySources.addLast(target);
+		}
+	}
+
+	private void contributeDefaults(Map<String, Object> defaults, Resource resource) {
+		if (resource.exists()) {
+			YamlPropertiesFactoryBean yamlPropertiesFactoryBean = new YamlPropertiesFactoryBean();
+			yamlPropertiesFactoryBean.setResources(resource);
+			yamlPropertiesFactoryBean.afterPropertiesSet();
+			Properties p = yamlPropertiesFactoryBean.getObject();
+			for (Object k : p.keySet()) {
+				String key = k.toString();
+				defaults.put(key, p.get(key));
+			}
 		}
 	}
 

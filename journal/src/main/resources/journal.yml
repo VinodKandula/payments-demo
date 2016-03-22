@@ -1,0 +1,17 @@
+spring:
+  cloud:
+    stream:
+      rabbit:
+        bindings:
+          journalOutput:
+            destination: ${journal.destination:journal}
+            content-type: ${journal.content-type:application/json}
+            consumer:
+              transacted: ${journal.stream.transacted:true}
+            producer:
+              required-groups: ${journal.stream.group:default}
+          journalInput:
+            destination: ${journal.destination:journal}
+            group: ${journal.stream.group:default}
+            consumer:
+              transacted: ${journal.stream.transacted:true}

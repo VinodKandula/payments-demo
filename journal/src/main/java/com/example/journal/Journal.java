@@ -22,8 +22,8 @@ package com.example.journal;
  */
 public interface Journal {
 	
-	void debit(JournalEntry entry);
+	boolean debit(JournalEntry entry);
 
-	void credit(JournalEntry entry);
+	boolean credit(JournalEntry entry);
 
 }

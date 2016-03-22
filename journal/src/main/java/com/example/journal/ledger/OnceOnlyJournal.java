@@ -42,23 +42,23 @@ public class OnceOnlyJournal implements Journal {
 	}
 
 	@Override
-	public void debit(JournalEntry entry) {
+	public boolean debit(JournalEntry entry) {
 		if (transactions.contains(entry.getTransactionId())) {
 			log.warn("Duplicate debit entry: " + entry);
-			return;
+			return false;
 		}
 		transactions.add(entry.getTransactionId());
-		delegate.debit(entry);
+		return delegate.debit(entry);
 	}
 
 	@Override
-	public void credit(JournalEntry entry) {
+	public boolean credit(JournalEntry entry) {
 		if (transactions.contains(entry.getTransactionId())) {
 			log.warn("Duplicate credit entry: " + entry);
-			return;
+			return false;
 		}
 		transactions.add(entry.getTransactionId());
-		delegate.credit(entry);
+		return delegate.credit(entry);
 	}
 
 }

@@ -34,14 +34,14 @@ public class StreamJournal implements Journal {
 	}
 
 	@Override
-	public void debit(JournalEntry entry) {
-		source.output().send(MessageBuilder.withPayload(entry)
+	public boolean debit(JournalEntry entry) {
+		return source.output().send(MessageBuilder.withPayload(entry)
 				.setHeader("X-Journal-Type", "debit").build());
 	}
 
 	@Override
-	public void credit(JournalEntry entry) {
-		source.output().send(MessageBuilder.withPayload(entry)
+	public boolean credit(JournalEntry entry) {
+		return source.output().send(MessageBuilder.withPayload(entry)
 				.setHeader("X-Journal-Type", "credit").build());
 	}
 

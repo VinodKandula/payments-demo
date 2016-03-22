@@ -31,14 +31,16 @@ public class LedgerJournal implements Journal {
 	private static Logger log = LoggerFactory.getLogger(LedgerJournal.class);
 
 	@Override
-	public void debit(JournalEntry entry) {
+	public boolean debit(JournalEntry entry) {
 		// TODO: ship data out to eventually consistent global store
 		log.info("Debit: " + entry);
+		return true;
 	}
 
 	@Override
-	public void credit(JournalEntry entry) {
+	public boolean credit(JournalEntry entry) {
 		log.info("Cebit: " + entry);
+		return true;
 	}
 
 }
